@@ -15,7 +15,18 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     Button newGameButton;
     Button[][] ticTacToeButtons = new Button[3][3];
+
     private boolean xTurn = true;
+    String[] winningCombinations = {
+            "000102",
+            "101112",
+            "202122",
+            "001020",
+            "011121",
+            "021222",
+            "001122",
+            "021120",
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +82,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     currentButton.setText(xTurn ? "X" : "O");
                     xTurn = !xTurn;
                 }
+
+                checkGame();
+            }
+        }
+    }
+
+    private void newGame() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                ticTacToeButtons[i][j].setText("");
+                ticTacToeButtons[i][j].setEnabled(true);
+            }
+        }
+    }
+
+    private void checkGame() {
+        for (String c: winningCombinations) {
+            String firstValue = (String) ticTacToeButtons[toInt(c.charAt(0))][toInt(c.charAt(1))].getText();
+            String secondValue = (String) ticTacToeButtons[toInt(c.charAt(2))][toInt(c.charAt(3))].getText();
+            String thirdValue = (String) ticTacToeButtons[toInt(c.charAt(4))][toInt(c.charAt(5))].getText();
+
+            if (firstValue.equals(secondValue) && secondValue.equals(thirdValue) && !thirdValue.equals("")) {
+                Toast.makeText(this, firstValue + " won", Toast.LENGTH_SHORT).show();
+                stopGame();
+            }
+        }
+    }
+
+    private void stopGame() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                ticTacToeButtons[i][j].setEnabled(false);
             }
         }
     }
@@ -79,11 +122,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return view.getId() == button.getId() && button.getText() == "";
     }
 
-    private void newGame() {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                ticTacToeButtons[i][j].setText("");
-            }
-        }
+    private int toInt(char c) {
+        return Character.getNumericValue(c);
     }
 }
