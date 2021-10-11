@@ -13,4 +13,12 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="TicTacToeButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_marginHorizontal">5dp</item>
+        <item name="android:layout_marginVertical">5dp</item>
+        <item name="android:width">90dp</item>
+        <item name="android:height">90dp</item>
+        <item name="android:textSize">20sp</item>
+    </style>
 </resources>
