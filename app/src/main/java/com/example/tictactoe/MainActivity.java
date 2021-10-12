@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView playerOneTextView;
     TextView playerTwoTextView;
     Button[][] ticTacToeButtons = new Button[3][3];
+    private SharedPreferences savedValues;
 
     private int cellsClickedInCurrentGame = 0;
     private int playerOneScore = 0;
@@ -63,6 +64,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         savedValues = getSharedPreferences("SavedValues", MODE_PRIVATE);
+    }
+
+    @Override
+    protected void onPause() {
+        Editor editor = savedValues.edit();
+        editor.putInt("playerOneScore", playerOneScore);
+        editor.putInt("playerTwoScore", playerTwoScore);
+        editor.apply();
+
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        playerOneScore = savedValues.getInt("playerOneScore", 0);
+        playerTwoScore = savedValues.getInt("playerTwoScore", 0);
+        playerOneTextView.setText(playerOneScore + "");
+        playerTwoTextView.setText(playerTwoScore + "");
     }
 
     @Override
@@ -130,7 +151,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        if (++cellsClickedInCurrentGame == NUMBER_OF_CLICKS_TO_DRAW) {
+        cellsClickedInCurrentGame++;
+        if (cellsClickedInCurrentGame == NUMBER_OF_CLICKS_TO_DRAW) {
             Toast.makeText(this, "Game Draw!!", Toast.LENGTH_SHORT).show();
             stopGame();
         }
