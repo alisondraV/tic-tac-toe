@@ -3,7 +3,6 @@ package com.example.tictactoe;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
@@ -82,8 +81,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         playerOneScore = savedValues.getInt("playerOneScore", 0);
         playerTwoScore = savedValues.getInt("playerTwoScore", 0);
-        playerOneTextView.setText(playerOneScore + "");
-        playerTwoTextView.setText(playerTwoScore + "");
+        playerOneTextView.setText(String.valueOf(playerOneScore));
+        playerTwoTextView.setText(String.valueOf(playerTwoScore));
     }
 
     @Override
@@ -95,8 +94,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.scores) {
-            startActivity(new Intent(this, ScoresActivity.class));
+        if (item.getItemId() == R.id.reset_game) {
+            resetGame();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -138,15 +137,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String thirdValue = (String) ticTacToeButtons[charToInt(c.charAt(4))][charToInt(c.charAt(5))].getText();
 
             if (firstValue.equals(secondValue) && secondValue.equals(thirdValue) && !thirdValue.equals("")) {
-                if (firstValue.equals("X")) {
-                    playerOneScore++;
-                    playerOneTextView.setText(playerOneScore + "");
-                    Toast.makeText(this, "Player One has won!", Toast.LENGTH_SHORT).show();
-                } else {
-                    playerTwoScore++;
-                    playerTwoTextView.setText(playerTwoScore + "");
-                    Toast.makeText(this, "Player Two has won!", Toast.LENGTH_SHORT).show();
-                }
+                showWinnerMessage(firstValue);
                 stopGame();
             }
         }
@@ -158,6 +149,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void showWinnerMessage(String firstValue) {
+        if (firstValue.equals("X")) {
+            playerOneScore++;
+            playerOneTextView.setText(String.valueOf(playerOneScore));
+            Toast.makeText(this, "Player One has won!", Toast.LENGTH_SHORT).show();
+        } else {
+            playerTwoScore++;
+            playerTwoTextView.setText(String.valueOf(playerTwoScore));
+            Toast.makeText(this, "Player Two has won!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void stopGame() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -166,6 +169,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         xTurn = true;
         cellsClickedInCurrentGame = 0;
+    }
+
+    private void resetGame() {
+        playerOneScore = 0;
+        playerTwoScore = 0;
+        playerOneTextView.setText("0");
+        playerTwoTextView.setText("0");
+        stopGame();
+        newGame();
     }
 
     private boolean isButtonEligibleToBeMarked(View view, Button button) {
