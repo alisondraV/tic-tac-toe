@@ -5,4 +5,9 @@
     <string name="player_one">Player One:</string>
     <string name="empty_value">0</string>
     <string name="player_two">Player Two:</string>
+    <string name="start_game">Start Game</string>
+    <string name="add_player">Add Player</string>
+    <string name="select_player_1">Select Player 1</string>
+    <string name="select_player_2">Select Player 2</string>
+    <string name="view_scoreboard">View Scoreboard</string>
 </resources>
