@@ -11,4 +11,8 @@
     <string name="select_player_2">Select Player 2</string>
     <string name="view_scoreboard">View Scoreboard</string>
     <string name="name">Name:</string>
+    <string name="ties">Ties</string>
+    <string name="player">Player</string>
+    <string name="wins">Wins</string>
+    <string name="losses">Losses</string>
 </resources>
