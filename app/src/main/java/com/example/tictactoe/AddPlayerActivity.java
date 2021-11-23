@@ -3,7 +3,6 @@ package com.example.tictactoe;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -16,7 +15,7 @@ public class AddPlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_player);
 
-        playerName = findViewById(R.id.playerName);
+        playerName = findViewById(R.id.etPlayerName);
         addPlayer = findViewById(R.id.btnAddPlayerName);
 
         addPlayer.setOnClickListener(view -> {

@@ -39,6 +39,25 @@ public class MainMenuActivity extends AppCompatActivity implements OnClickListen
             case R.id.btn_start:
                 Intent gameActivity = new Intent(this, MainActivity.class);
                 this.startActivity(gameActivity);
+                break;
+            case R.id.btn_scoreboard:
+                Intent scoreboardActivity = new Intent(this, ScoreboardActivity.class);
+                this.startActivity(scoreboardActivity);
+                break;
+            case R.id.btn_player1:
+                Intent selectPlayer1 = new Intent(this, SelectPlayerActivity.class);
+                selectPlayer1.putExtra("player", "1");
+                this.startActivity(selectPlayer1);
+                break;
+            case R.id.btn_player2:
+                Intent selectPlayer2 = new Intent(this, SelectPlayerActivity.class);
+                selectPlayer2.putExtra("player", "2");
+                this.startActivity(selectPlayer2);
+                break;
+            case R.id.btn_add_player:
+                Intent addPlayerActivity = new Intent(this, AddPlayerActivity.class);
+                this.startActivity(addPlayerActivity);
+                break;
         }
     }
 }

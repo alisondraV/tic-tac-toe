@@ -15,4 +15,5 @@
     <string name="player">Player</string>
     <string name="wins">Wins</string>
     <string name="losses">Losses</string>
+    <string name="select_player">Select Player</string>
 </resources>

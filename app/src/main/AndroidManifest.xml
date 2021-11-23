@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TicTacToe">
         <activity
+            android:name=".SelectPlayerActivity"
+            android:exported="true" />
+        <activity
             android:name=".ScoreboardActivity"
             android:exported="true" />
         <activity
