@@ -10,4 +10,5 @@
     <string name="select_player_1">Select Player 1</string>
     <string name="select_player_2">Select Player 2</string>
     <string name="view_scoreboard">View Scoreboard</string>
+    <string name="name">Name:</string>
 </resources>

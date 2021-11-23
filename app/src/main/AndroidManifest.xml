@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TicTacToe">
         <activity
+            android:name=".AddPlayerActivity"
+            android:exported="true" />
+        <activity
             android:name=".MainMenuActivity"
             android:exported="true">
             <intent-filter>
