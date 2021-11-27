@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -28,6 +29,7 @@ public class SelectPlayerActivity extends AppCompatActivity {
     DatabaseReference databaseReference;
     ArrayList<Player> arrayList = new ArrayList<>();
     ArrayAdapter<Player> arrayAdapter;
+    private SharedPreferences savedValues;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +40,9 @@ public class SelectPlayerActivity extends AppCompatActivity {
         listView = findViewById(R.id.listViewSelectPlayer);
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference("Player");
+        savedValues = getSharedPreferences("SavedValues", MODE_PRIVATE);
 
-        Bundle bundle = getIntent().getExtras();
-        player = bundle.getString("player");
+        player = getIntent().getExtras().getString("player");
         header.setText("Select Player " + player);
 
         databaseReference.addChildEventListener(new ChildEventListener() {
@@ -56,8 +58,11 @@ public class SelectPlayerActivity extends AppCompatActivity {
 
                     Intent intent = new Intent(SelectPlayerActivity.this, MainMenuActivity.class);
 
-                    intent.putExtra("player" + player + "Id", playerModel.getId());
-                    intent.putExtra("player" + player + "Name", playerModel.getName());
+                    SharedPreferences.Editor editor = savedValues.edit();
+                    editor.putLong("player" + player + "Id", playerModel.getId());
+                    editor.putString("player" + player + "Name", playerModel.getName());
+                    editor.apply();
+
                     startActivity(intent);
                 });
             }

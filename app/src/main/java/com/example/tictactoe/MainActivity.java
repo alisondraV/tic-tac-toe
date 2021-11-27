@@ -17,14 +17,13 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final int NUMBER_OF_CLICKS_TO_DRAW = 9;
     Button newGameButton;
-    TextView playerOneTextView;
-    TextView playerTwoTextView;
+    TextView playerOneTextView, playerTwoTextView;
     Button[][] ticTacToeButtons = new Button[3][3];
     private SharedPreferences savedValues;
 
     private int cellsClickedInCurrentGame = 0;
-    private int playerOneScore = 0;
-    private int playerTwoScore = 0;
+    private String playerOneName = "empty";
+    private String playerTwoName = "empty";
     private boolean xTurn = true;
     String[] winningCombinations = {
             "000102",
@@ -45,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         newGameButton = findViewById(R.id.btnNewGame);
         playerOneTextView = findViewById(R.id.txtPlayerOne);
         playerTwoTextView = findViewById(R.id.txtPlayerTwo);
+
         ticTacToeButtons[0][0] = findViewById(R.id.btn00);
         ticTacToeButtons[0][1] = findViewById(R.id.btn01);
         ticTacToeButtons[0][2] = findViewById(R.id.btn02);
@@ -63,26 +63,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         savedValues = getSharedPreferences("SavedValues", MODE_PRIVATE);
-    }
-
-    @Override
-    protected void onPause() {
-        Editor editor = savedValues.edit();
-        editor.putInt("playerOneScore", playerOneScore);
-        editor.putInt("playerTwoScore", playerTwoScore);
-        editor.apply();
-
-        super.onPause();
+        playerOneName = savedValues.getString("player1Name", "empty");
+        playerTwoName = savedValues.getString("player2Name", "empty");
+        playerOneTextView.setText(playerOneName);
+        playerTwoTextView.setText(playerTwoName);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        playerOneScore = savedValues.getInt("playerOneScore", 0);
-        playerTwoScore = savedValues.getInt("playerTwoScore", 0);
-        playerOneTextView.setText(String.valueOf(playerOneScore));
-        playerTwoTextView.setText(String.valueOf(playerTwoScore));
+        playerOneTextView.setText(savedValues.getString("player1Name", "empty"));
+        playerTwoTextView.setText(savedValues.getString("player2Name", "empty"));
     }
 
     @Override
@@ -150,15 +142,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void showWinnerMessage(String firstValue) {
-        if (firstValue.equals("X")) {
-            playerOneScore++;
-            playerOneTextView.setText(String.valueOf(playerOneScore));
-            Toast.makeText(this, "Player One has won!", Toast.LENGTH_SHORT).show();
-        } else {
-            playerTwoScore++;
-            playerTwoTextView.setText(String.valueOf(playerTwoScore));
-            Toast.makeText(this, "Player Two has won!", Toast.LENGTH_SHORT).show();
-        }
+        String winner = firstValue.equals("X") ? playerOneName : playerTwoName;
+        Toast.makeText(this, winner + " has won!", Toast.LENGTH_SHORT).show();
     }
 
     private void stopGame() {
@@ -172,10 +157,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void resetGame() {
-        playerOneScore = 0;
-        playerTwoScore = 0;
-        playerOneTextView.setText("0");
-        playerTwoTextView.setText("0");
         stopGame();
         newGame();
     }
