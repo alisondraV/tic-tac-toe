@@ -7,6 +7,9 @@ public class Player {
     private int losses;
     private int ties;
 
+    public Player() {
+    }
+
     public Player(long id, String name, int wins, int losses, int ties) {
         this.id = id;
         this.name = name;
