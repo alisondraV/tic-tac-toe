@@ -3,6 +3,7 @@ package com.example.tictactoe;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
@@ -81,17 +82,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playerOneId = savedValues.getLong("player1Id", 0);
         playerTwoId = savedValues.getLong("player2Id", 0);
 
-        databaseReference.child(String.valueOf(playerOneId)).get().addOnCompleteListener(task -> {
-            playerOne = Objects.requireNonNull(task.getResult()).getValue(Player.class);
-            assert playerOne != null;
-            playerOneTextView.setText(playerOne.getName());
-        });
+        if (playerOneId == 0 || playerTwoId == 0) {
+            Toast.makeText(this, "You should select two players first!", Toast.LENGTH_LONG).show();
+            Intent mainMenu = new Intent(this, MainMenuActivity.class);
+            this.startActivity(mainMenu);
+        } else {
+            databaseReference.child(String.valueOf(playerOneId)).get().addOnCompleteListener(task -> {
+                playerOne = Objects.requireNonNull(task.getResult()).getValue(Player.class);
+                assert playerOne != null;
+                playerOneTextView.setText(playerOne.getName());
+            });
 
-        databaseReference.child(String.valueOf(playerTwoId)).get().addOnCompleteListener(task -> {
-            playerTwo = Objects.requireNonNull(task.getResult()).getValue(Player.class);
-            assert playerTwo != null;
-            playerTwoTextView.setText(playerTwo.getName());
-        });
+            databaseReference.child(String.valueOf(playerTwoId)).get().addOnCompleteListener(task -> {
+                playerTwo = Objects.requireNonNull(task.getResult()).getValue(Player.class);
+                assert playerTwo != null;
+                playerTwoTextView.setText(playerTwo.getName());
+            });
+        }
     }
 
     @Override
