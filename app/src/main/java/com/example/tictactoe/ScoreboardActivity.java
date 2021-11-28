@@ -2,8 +2,10 @@ package com.example.tictactoe;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -35,10 +37,12 @@ public class ScoreboardActivity extends AppCompatActivity {
         listView.setAdapter(arrayAdapter);
 
         databaseReference.addChildEventListener(new ChildEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Player newPlayer = snapshot.getValue(Player.class);
                 playerArray.add(newPlayer);
+                playerArray.sort((player1, player2) -> player2.getWins() < player1.getWins() ? -1 : 1);
                 arrayAdapter = new PlayerListAdapter(ScoreboardActivity.this, playerArray);
                 listView.setAdapter(arrayAdapter);
             }
