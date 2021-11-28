@@ -60,7 +60,6 @@ public class SelectPlayerActivity extends AppCompatActivity {
 
                     SharedPreferences.Editor editor = savedValues.edit();
                     editor.putLong("player" + player + "Id", playerModel.getId());
-                    editor.putString("player" + player + "Name", playerModel.getName());
                     editor.apply();
 
                     startActivity(intent);

@@ -1,11 +1,9 @@
 package com.example.tictactoe;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,13 +13,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.ChildEventListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final int NUMBER_OF_CLICKS_TO_DRAW = 9;
@@ -33,9 +31,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SharedPreferences savedValues;
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
-    ArrayList<Player> arrayList = new ArrayList<>();
-    private String playerOneName;
-    private String playerTwoName;
+    Player playerOne;
+    Player playerTwo;
     private long playerOneId;
     private long playerTwoId;
 
@@ -81,31 +78,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         savedValues = getSharedPreferences("SavedValues", MODE_PRIVATE);
-        playerOneName = savedValues.getString("player1Name", "empty");
-        playerTwoName = savedValues.getString("player2Name", "empty");
         playerOneId = savedValues.getLong("player1Id", 0);
         playerTwoId = savedValues.getLong("player2Id", 0);
-        playerOneTextView.setText(playerOneName);
-        playerTwoTextView.setText(playerTwoName);
 
-        databaseReference.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Player newPlayer = snapshot.getValue(Player.class);
-                arrayList.add(newPlayer);
-            }
+        databaseReference.child(String.valueOf(playerOneId)).get().addOnCompleteListener(task -> {
+            playerOne = Objects.requireNonNull(task.getResult()).getValue(Player.class);
+            assert playerOne != null;
+            playerOneTextView.setText(playerOne.getName());
+        });
 
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+        databaseReference.child(String.valueOf(playerTwoId)).get().addOnCompleteListener(task -> {
+            playerTwo = Objects.requireNonNull(task.getResult()).getValue(Player.class);
+            assert playerTwo != null;
+            playerTwoTextView.setText(playerTwo.getName());
         });
     }
 
@@ -169,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String thirdValue = (String) ticTacToeButtons[charToInt(c.charAt(4))][charToInt(c.charAt(5))].getText();
 
             if (firstValue.equals(secondValue) && secondValue.equals(thirdValue) && !thirdValue.equals("")) {
-                String winner = firstValue.equals("X") ? playerOneName : playerTwoName;
+                String winner = firstValue.equals("X") ? playerOne.getName() : playerTwo.getName();
                 Toast.makeText(this, winner + " has won!", Toast.LENGTH_SHORT).show();
 
                 updatePlayersScores(winner);
@@ -186,9 +171,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void updatePlayersScores(String winner) {
-        Player playerOne = arrayList.get((int) playerOneId - 1);
-        Player playerTwo = arrayList.get((int) playerTwoId - 1);
-
         if (winner.equals(playerOne.getName())) {
             playerOne.increaseWins();
             playerTwo.increaseLosses();
