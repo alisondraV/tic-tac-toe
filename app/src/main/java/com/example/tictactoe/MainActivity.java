@@ -14,9 +14,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -26,7 +23,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final int NUMBER_OF_CLICKS_TO_DRAW = 9;
     public static final String DRAW = "DRAW";
     Button newGameButton;
-    TextView playerOneTextView, playerTwoTextView;
+    TextView playerOneTextView, playerTwoTextView, winnerTextView;
     Button[][] ticTacToeButtons = new Button[3][3];
 
     private SharedPreferences savedValues;
@@ -58,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         newGameButton = findViewById(R.id.btnNewGame);
         playerOneTextView = findViewById(R.id.txtPlayerOne);
         playerTwoTextView = findViewById(R.id.txtPlayerTwo);
+        winnerTextView = findViewById(R.id.txtWinner);
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference("Player");
 
@@ -82,10 +80,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playerOneId = savedValues.getLong("player1Id", 0);
         playerTwoId = savedValues.getLong("player2Id", 0);
 
-        if (playerOneId == 0 || playerTwoId == 0) {
-            Toast.makeText(this, "You should select two players first!", Toast.LENGTH_LONG).show();
-            Intent mainMenu = new Intent(this, MainMenuActivity.class);
-            this.startActivity(mainMenu);
+        if (playerOneId == 0) {
+            Toast.makeText(this, "You should select player 1 first!", Toast.LENGTH_LONG).show();
+            Intent selectPlayer1 = new Intent(this, SelectPlayerActivity.class);
+            selectPlayer1.putExtra("player", "1");
+            this.startActivity(selectPlayer1);
+        } else if (playerTwoId == 0) {
+            Toast.makeText(this, "You should select player 2 first!", Toast.LENGTH_LONG).show();
+            Intent selectPlayer2 = new Intent(this, SelectPlayerActivity.class);
+            selectPlayer2.putExtra("player", "2");
+            this.startActivity(selectPlayer2);
         } else {
             databaseReference.child(String.valueOf(playerOneId)).get().addOnCompleteListener(task -> {
                 playerOne = Objects.requireNonNull(task.getResult()).getValue(Player.class);
@@ -118,8 +122,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.reset_game) {
-            resetGame();
+        if (item.getItemId() == R.id.scoreboard) {
+            Intent scoreboardActivity = new Intent(this, ScoreboardActivity.class);
+            this.startActivity(scoreboardActivity);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -162,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             if (firstValue.equals(secondValue) && secondValue.equals(thirdValue) && !thirdValue.equals("")) {
                 String winner = firstValue.equals("X") ? playerOne.getName() : playerTwo.getName();
-                Toast.makeText(this, winner + " has won!", Toast.LENGTH_SHORT).show();
+                winnerTextView.setText(winner + " has won!");
 
                 updatePlayersScores(winner);
                 stopGame();
@@ -171,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         cellsClickedInCurrentGame++;
         if (cellsClickedInCurrentGame == NUMBER_OF_CLICKS_TO_DRAW) {
-            Toast.makeText(this, "Game Draw!!", Toast.LENGTH_SHORT).show();
+            winnerTextView.setText("Game Draw!!");
             updatePlayersScores(DRAW);
             stopGame();
         }
