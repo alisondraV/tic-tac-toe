@@ -1,6 +1,7 @@
 package com.example.tictactoe;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
@@ -14,16 +15,31 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final int NUMBER_OF_CLICKS_TO_DRAW = 9;
+    public static final String DRAW = "DRAW";
     Button newGameButton;
     TextView playerOneTextView, playerTwoTextView;
     Button[][] ticTacToeButtons = new Button[3][3];
+
     private SharedPreferences savedValues;
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference databaseReference;
+    ArrayList<Player> arrayList = new ArrayList<>();
+    private String playerOneName;
+    private String playerTwoName;
+    private long playerOneId;
+    private long playerTwoId;
 
     private int cellsClickedInCurrentGame = 0;
-    private String playerOneName = "empty";
-    private String playerTwoName = "empty";
     private boolean xTurn = true;
     String[] winningCombinations = {
             "000102",
@@ -44,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         newGameButton = findViewById(R.id.btnNewGame);
         playerOneTextView = findViewById(R.id.txtPlayerOne);
         playerTwoTextView = findViewById(R.id.txtPlayerTwo);
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference("Player");
 
         ticTacToeButtons[0][0] = findViewById(R.id.btn00);
         ticTacToeButtons[0][1] = findViewById(R.id.btn01);
@@ -65,8 +83,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         savedValues = getSharedPreferences("SavedValues", MODE_PRIVATE);
         playerOneName = savedValues.getString("player1Name", "empty");
         playerTwoName = savedValues.getString("player2Name", "empty");
+        playerOneId = savedValues.getLong("player1Id", 0);
+        playerTwoId = savedValues.getLong("player2Id", 0);
         playerOneTextView.setText(playerOneName);
         playerTwoTextView.setText(playerTwoName);
+
+        databaseReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Player newPlayer = snapshot.getValue(Player.class);
+                arrayList.add(newPlayer);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
     }
 
     @Override
@@ -129,7 +169,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String thirdValue = (String) ticTacToeButtons[charToInt(c.charAt(4))][charToInt(c.charAt(5))].getText();
 
             if (firstValue.equals(secondValue) && secondValue.equals(thirdValue) && !thirdValue.equals("")) {
-                showWinnerMessage(firstValue);
+                String winner = firstValue.equals("X") ? playerOneName : playerTwoName;
+                Toast.makeText(this, winner + " has won!", Toast.LENGTH_SHORT).show();
+
+                updatePlayersScores(winner);
                 stopGame();
             }
         }
@@ -137,13 +180,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cellsClickedInCurrentGame++;
         if (cellsClickedInCurrentGame == NUMBER_OF_CLICKS_TO_DRAW) {
             Toast.makeText(this, "Game Draw!!", Toast.LENGTH_SHORT).show();
+            updatePlayersScores(DRAW);
             stopGame();
         }
     }
 
-    private void showWinnerMessage(String firstValue) {
-        String winner = firstValue.equals("X") ? playerOneName : playerTwoName;
-        Toast.makeText(this, winner + " has won!", Toast.LENGTH_SHORT).show();
+    private void updatePlayersScores(String winner) {
+        Player playerOne = arrayList.get((int) playerOneId - 1);
+        Player playerTwo = arrayList.get((int) playerTwoId - 1);
+
+        if (winner.equals(playerOne.getName())) {
+            playerOne.increaseWins();
+            playerTwo.increaseLosses();
+        } else if (winner.equals(playerTwo.getName())) {
+            playerTwo.increaseWins();
+            playerOne.increaseLosses();
+        } else if (winner.equals(DRAW)) {
+            playerOne.increaseTies();
+            playerTwo.increaseTies();
+        }
+
+        databaseReference.child(String.valueOf(playerOneId)).setValue(playerOne);
+        databaseReference.child(String.valueOf(playerTwoId)).setValue(playerTwo);
     }
 
     private void stopGame() {

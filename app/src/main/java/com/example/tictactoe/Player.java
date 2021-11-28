@@ -62,4 +62,16 @@ public class Player {
     public String toString() {
         return "Player " + id + ": " + name;
     }
+
+    public void increaseWins() {
+        this.setWins(wins + 1);
+    }
+
+    public void increaseLosses() {
+        this.setLosses(losses + 1);
+    }
+
+    public void increaseTies() {
+        this.setTies(ties + 1);
+    }
 }
