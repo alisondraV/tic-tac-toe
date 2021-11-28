@@ -21,6 +21,24 @@ public class AddPlayerActivity extends AppCompatActivity {
     DatabaseReference databaseReference;
     Player player;
     long maxId = 0;
+    ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            Toast.makeText(AddPlayerActivity.this, "Player has been successfully created!", Toast.LENGTH_SHORT).show();
+            playerName.setText("");
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+            Toast.makeText(AddPlayerActivity.this, "An error occurred while creating a player :(", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        databaseReference.removeEventListener(valueEventListener);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,18 +71,7 @@ public class AddPlayerActivity extends AppCompatActivity {
                 databaseReference.child(String.valueOf(player.getId())).setValue(player);
             }
 
-            databaseReference.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    Toast.makeText(AddPlayerActivity.this, "Player has been successfully created!", Toast.LENGTH_SHORT).show();
-                    playerName.setText("");
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(AddPlayerActivity.this, "An error occurred while creating a player :(", Toast.LENGTH_SHORT).show();
-                }
-            });
+            databaseReference.addValueEventListener(valueEventListener);
         });
     }
 }
